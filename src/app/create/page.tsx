@@ -1,5 +1,6 @@
 "use client";
 
+import { upload } from "@vercel/blob/client";
 import { useState } from "react";
 
 const HuggingFaceImageGenerator = () => {
@@ -7,7 +8,7 @@ const HuggingFaceImageGenerator = () => {
   const [imageUrl, setImgUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const HF_APP_KEY = process.env.HF_APP_KEY;
+  const HF_API_KEY = process.env.HF_API_KEY;
 
   const generateImage = async () => {
     if (!prompt.trim()) return;
@@ -18,7 +19,7 @@ const HuggingFaceImageGenerator = () => {
     try {
       const headers = {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${HF_APP_KEY}`,
+        Authorization: `Bearer ${HF_API_KEY}`,
       };
 
       const response = await fetch(
@@ -27,6 +28,7 @@ const HuggingFaceImageGenerator = () => {
           method: "POST",
           headers: headers,
           body: JSON.stringify({
+            inputs: prompt,
             parameters: {
               negative_prompt: "blurry,bad quality,disorted",
               num_inference_steps: 20,
@@ -35,13 +37,20 @@ const HuggingFaceImageGenerator = () => {
           }),
         }
       );
-      if (response.ok) {
+      if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const blob = await response.blob();
-      const imageUrl = URL.createObjectURL(blob);
-      setImgUrl(imageUrl);
+      const imgUrl = URL.createObjectURL(blob);
+
+      const file = new File([blob], "generated.png", { type: "image/png" });
+      const uploaded = await upload(file.name, file, {
+        access: "public",
+        handleUploadUrl: "/api/upload",
+      });
+      console.log(uploaded);
+      setImgUrl(imgUrl);
     } catch (err) {
       setIsLoading(false);
     }

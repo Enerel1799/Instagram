@@ -14,7 +14,10 @@ type inputValue = {
 };
 
 const Page = () => {
-  const [inputValues, setInputValues] = useState<inputValue>("");
+  const [inputValues, setInputValues] = useState<inputValue>({
+    email: "",
+    password: "",
+  });
   const handleInputValue = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (name === "email") {

@@ -14,7 +14,11 @@ type inputValue = {
 const Page = () => {
   const { setUser, user } = useUser();
   const { push } = useRouter();
-  const [inputValues, setInputValues] = useState<inputValue>("");
+  const [inputValues, setInputValues] = useState<inputValue>({
+    email: "",
+    password: "",
+    username: "",
+  });
   const handleInputValue = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (name === "email") {
