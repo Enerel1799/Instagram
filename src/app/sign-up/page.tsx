@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AuthContext, useUser } from "@/providers/AuthProvider";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, useContext, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useState } from "react";
+import { toast } from "sonner";
 type inputValue = {
   email: string;
   password: string;
@@ -12,7 +13,7 @@ type inputValue = {
 };
 
 const Page = () => {
-  const { setUser, user } = useUser();
+  const { setUser, user, token } = useUser();
   const { push } = useRouter();
   const [inputValues, setInputValues] = useState<inputValue>({
     email: "",
@@ -29,13 +30,13 @@ const Page = () => {
       setInputValues({ ...inputValues, username: value });
     }
   };
-  console.log(inputValues);
 
   const signup = async () => {
     const response = await fetch("http://localhost:8080/sign-up", {
       method: "POST",
       headers: {
         "Content-type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         email: inputValues.email,
@@ -44,12 +45,16 @@ const Page = () => {
       }),
     });
 
-    const user = await response.json();
-    localStorage.setItem("user", JSON.stringify(user));
-    setUser(user);
+    if (response.ok) {
+      const user = await response.json();
+      localStorage.setItem("user", user);
+      setUser(user);
+      push("/");
+      toast.success("successfully signed up");
+    } else {
+      toast.error("Error");
+    }
   };
-
-  if (user) push("/");
   return (
     <div>
       <Input

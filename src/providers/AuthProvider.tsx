@@ -1,5 +1,7 @@
 "use client";
+import { jwtDecode } from "jwt-decode";
 import { User } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
   createContext,
   PropsWithChildren,
@@ -10,29 +12,46 @@ import {
 import { useState } from "react";
 import { useEffect } from "react";
 
-type User = {
+export type User = {
+  _id: string;
   email: string;
   password: string;
   username: string;
   bio: string | null;
   profilePicture: string | null;
+  following: string[];
+  followers: string[];
 };
 
 type AuthContext = {
   user: User | null;
   setUser: Dispatch<SetStateAction<null | User>>;
+  token: string | null;
+  setToken: Dispatch<SetStateAction<null | string>>;
   login: (password: string, email: string) => Promise<void>;
+};
+
+type decodedTokenType = {
+  data: User;
 };
 
 export const AuthContext = createContext<AuthContext | null>(null);
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
+  const { push } = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      setUser(JSON.parse(userData));
+    const localToken = localStorage.getItem("token");
+    if (typeof window !== "undefined") {
+      if (localToken) {
+        setToken(localToken);
+        const decodedToken: decodedTokenType = jwtDecode(localToken);
+        setUser(decodedToken.data);
+      } else {
+        push("/login");
+      }
     }
   }, []);
 
@@ -45,12 +64,22 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         password: password,
       }),
     });
-    const user = await response.json();
-
-    localStorage.setItem("user", JSON.stringify(user));
-    setUser(user);
+    if (response.ok) {
+      const token = await response.json();
+      localStorage.setItem("token", token);
+      setToken(token);
+      const decodedToken: decodedTokenType = jwtDecode(token);
+      setUser(decodedToken.data);
+      push("/");
+    }
   };
-  const values = { login: login, user: user, setUser: setUser };
+  const values = {
+    login: login,
+    user: user,
+    setUser: setUser,
+    token,
+    setToken,
+  };
   return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>;
 };
 

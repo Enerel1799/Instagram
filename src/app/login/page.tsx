@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { IG_LOGO } from "@/icons/png-clipart-instagram-logo-computer-icons-logo-blog-instagram-purple-violet-thumbnail-removebg-preview 1-2";
 import { useUser } from "@/providers/AuthProvider";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 type inputValue = {
@@ -26,8 +26,7 @@ const Page = () => {
       setInputValues({ ...inputValues, password: value });
     }
   };
-  console.log(inputValues);
-  const { setUser, user } = useUser();
+  const { token, setToken } = useUser();
   const { push } = useRouter();
 
   const login = async () => {
@@ -35,6 +34,7 @@ const Page = () => {
       method: "POST",
       headers: {
         "Content-type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         email: inputValues.email,
@@ -42,15 +42,24 @@ const Page = () => {
       }),
     });
     if (response.ok) {
-      const user = await response.json();
-      localStorage.setItem("user", JSON.stringify(user));
-      setUser(user);
+      const token = await response.json();
+      localStorage.setItem("token", token);
+      setToken(token);
       push("/");
       toast.success("successfully logged in");
     } else {
       toast.error("Wrong password or Email");
     }
+    if (token) {
+      push("/");
+    }
   };
+  useEffect(() => {
+    if (token) {
+      push("/");
+    }
+  }, [token]);
+
   return (
     <div>
       <IG_LOGO />

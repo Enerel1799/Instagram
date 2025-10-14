@@ -1,12 +1,18 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useUser } from "@/providers/AuthProvider";
 import { upload } from "@vercel/blob/client";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
+import { toast } from "sonner";
 
 const HuggingFaceImageGenerator = () => {
+  const [inputValue, setInputValue] = useState("");
   const [prompt, setPrompt] = useState("");
   const [imageUrl, setImgUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { token, user } = useUser();
 
   const HF_API_KEY = process.env.HF_API_KEY;
 
@@ -42,7 +48,6 @@ const HuggingFaceImageGenerator = () => {
       }
 
       const blob = await response.blob();
-      const imgUrl = URL.createObjectURL(blob);
 
       const file = new File([blob], "generated.png", { type: "image/png" });
       const uploaded = await upload(file.name, file, {
@@ -50,12 +55,35 @@ const HuggingFaceImageGenerator = () => {
         handleUploadUrl: "/api/upload",
       });
       console.log(uploaded);
-      setImgUrl(imgUrl);
+      setImgUrl(uploaded.url);
     } catch (err) {
       setIsLoading(false);
     }
+    setIsLoading(false);
   };
-  console.log(imageUrl);
+  const handleInpuValue = (event: ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event?.target.value);
+  };
+  const createPost = async () => {
+    const response = await fetch("http://localhost:8080/posts/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        userId: user?._id,
+        caption: inputValue,
+        images: [imageUrl],
+      }),
+    });
+    if (response.ok) {
+      toast("amjilttai");
+    } else {
+      toast("try again");
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6 bg-gradient-to-br from-purple-50 to-blue-50 min-h-screen">
       <div className="bg-white rounded-xl shadow-lg p-8">
@@ -122,6 +150,11 @@ const HuggingFaceImageGenerator = () => {
             </div>
           </div>
         )}
+        <Input
+          placeholder="write caption"
+          onChange={(event) => handleInpuValue(event)}
+        />
+        <Button onClick={createPost}>Create post</Button>
       </div>
     </div>
   );
