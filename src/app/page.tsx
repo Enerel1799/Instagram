@@ -80,7 +80,6 @@ export default function Home() {
         fontFamily: "Helvetica, Arial, sans-serif",
       }}
     >
-      <Header />
       {posts.map((post) => (
         <div
           key={post._id}
@@ -91,7 +90,6 @@ export default function Home() {
             marginBottom: "20px",
           }}
         >
-          {/* Post Header */}
           <div
             style={{
               display: "flex",
@@ -113,7 +111,6 @@ export default function Home() {
             </span>
           </div>
 
-          {/* Image */}
           {post.images?.[0] && (
             <img
               src={post.images[0]}
@@ -126,7 +123,6 @@ export default function Home() {
             />
           )}
 
-          {/* Actions */}
           <div
             style={{
               display: "flex",
@@ -154,7 +150,6 @@ export default function Home() {
             </span>
           </div>
 
-          {/* Caption */}
           <div
             style={{
               padding: "0 10px 10px",

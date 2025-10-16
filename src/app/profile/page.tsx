@@ -44,9 +44,6 @@ const Page = () => {
             }}
           >
             <span>
-              <strong>0</strong> posts
-            </span>
-            <span>
               <strong>{user?.followers.length}</strong> followers
             </span>
             <span>

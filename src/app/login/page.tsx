@@ -18,15 +18,16 @@ const Page = () => {
     email: "",
     password: "",
   });
+
   const handleInputValue = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if (name === "email") {
-      setInputValues({ ...inputValues, email: value });
-    } else if (name === "password") {
-      setInputValues({ ...inputValues, password: value });
-    }
+    setInputValues((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
-  const { token, setToken } = useUser();
+
+  const { token, setToken, user } = useUser();
   const { push } = useRouter();
 
   const login = async () => {
@@ -41,19 +42,18 @@ const Page = () => {
         password: inputValues.password,
       }),
     });
+
     if (response.ok) {
       const token = await response.json();
       localStorage.setItem("token", token);
       setToken(token);
+      toast.success("Successfully logged in");
       push("/");
-      toast.success("successfully logged in");
     } else {
-      toast.error("Wrong password or Email");
-    }
-    if (token) {
-      push("/");
+      toast.error("Wrong password or email");
     }
   };
+
   useEffect(() => {
     if (token) {
       push("/");
@@ -61,24 +61,48 @@ const Page = () => {
   }, [token]);
 
   return (
-    <div>
-      <IG_LOGO />
-      <Input
-        id="email"
-        placeholder="email"
-        name="email"
-        value={inputValues.email}
-        onChange={(e) => handleInputValue(e)}
-      />
-      <Input
-        placeholder="password"
-        id="password"
-        name="password"
-        value={inputValues.password}
-        onChange={(e) => handleInputValue(e)}
-      />
-      <Button onClick={login}>Login</Button>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="w-full max-w-sm p-8 bg-white border border-gray-200 rounded-md shadow-md">
+        <div className="flex justify-center mb-6">
+          <IG_LOGO />
+        </div>
+        <div className="space-y-4">
+          <Input
+            id="email"
+            name="email"
+            placeholder="Phone number, username, or email"
+            value={inputValues.email}
+            onChange={handleInputValue}
+            className="w-full"
+          />
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="Password"
+            value={inputValues.password}
+            onChange={handleInputValue}
+            className="w-full"
+          />
+          <Button
+            onClick={login}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold"
+          >
+            Log In
+          </Button>
+          <div className="absolute text-sm text-gray-500">
+            Don't have an account?
+            <a
+              href="/sign-up"
+              className="text-blue-500 font-semibold hover:underline"
+            >
+              Sign up
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
+
 export default Page;

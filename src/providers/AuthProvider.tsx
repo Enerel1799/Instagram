@@ -49,8 +49,6 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         setToken(localToken);
         const decodedToken: decodedTokenType = jwtDecode(localToken);
         setUser(decodedToken.data);
-      } else {
-        push("/login");
       }
     }
   }, []);
@@ -70,7 +68,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       setToken(token);
       const decodedToken: decodedTokenType = jwtDecode(token);
       setUser(decodedToken.data);
-      push("/");
+      push("/login");
     }
   };
   const values = {
