@@ -1,34 +1,36 @@
 "use client";
 
-import { User, useUser } from "@/providers/AuthProvider";
-import { useEffect, useState } from "react";
-import { PostType } from "../page";
-import { toast } from "sonner";
+import { PostType } from "@/app/page";
 import { Button } from "@/components/ui/button";
+import { User, useUser } from "@/providers/AuthProvider";
 import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const Page = () => {
-    const {user,token} = useUser();    
-    const [userInfo,setUserInfo]= useState<User | null>();
-    const [posts, setPosts] = useState<PostType[]>([])
-      const [loading, setLoading] = useState(true);
+  const { token , user} = useUser();
+  const params = useParams();
+  const [userInfo, setUserInfo] = useState<User | null>(null);
+  const [posts, setPosts] = useState<PostType[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  
-    const userId = user?._id;
-    const fetchUserData= async()=>{
-      const response = await fetch(`http://localhost:8080/user-info/${userId}`,{
-        headers:{
-          authorization : `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+
+  const fetchUserData = async () => {
+    try {
+      const res = await fetch(`${API_URL}/user-info/${params.userId}`, {
+        headers: { authorization: `Bearer ${token}` },
       });
-  
-      const user = await response.json()
-      setUserInfo(user)
+      if (!res.ok) throw new Error("Failed to fetch user info");
+      const user = await res.json();
+      setUserInfo(user);
+    } catch (err) {
+      console.error(err);
     }
+  };
 
   const fetchPosts = async () => {
-      const res = await fetch(`http://localhost:8080/posts/user-posts/${userId}`, {
+      const res = await fetch(`${API_URL}/posts/user-posts/${params.userId}`, {
         headers: { authorization: `Bearer ${token}` ,
         "Content-Type": "application/json"
       },
@@ -41,7 +43,24 @@ const Page = () => {
     }
 
   };
-  
+   
+  const followUser = async ()=>{
+    const res = await fetch(`http://localhost:8080/follow/${userInfo?._id}`,
+      {
+        method:"POST",
+        headers:{
+          authorization: `Bearer ${token}`,
+          "Content-type":"application/json"
+        }
+      }
+    );
+    if(res.ok){
+      toast.success("success")
+    }else{
+      toast.error("gg")
+    }
+  }
+
   useEffect(() => {
     if (token) {
       (async () => {
@@ -52,8 +71,9 @@ const Page = () => {
     }
   }, [token]);
 
-    if (loading) return <div style={{ textAlign: "center", marginTop: "50px" }}>Loading...</div>;
-    return (
+  if (loading) return <div style={{ textAlign: "center", marginTop: "50px" }}>Loading...</div>;
+
+  return (
     <div
       style={{
         maxWidth: "935px",
@@ -126,6 +146,15 @@ const Page = () => {
             <li>
               <strong>{userInfo?.following?.length ?? 0}</strong> following
             </li>
+            {userInfo?.followers.includes(user?._id!)?(
+            <Button variant={"secondary"} onClick={()=>followUser()}>
+              Unfollow
+            </Button>
+            ):(
+            <Button variant={"secondary"} onClick={()=>followUser()}>
+              Follow
+            </Button>
+          )}
           </ul>
           <div style={{ marginTop: "20px" }}>
             <p style={{ marginTop: "5px", fontSize: "14px", color: "#333" }}>
@@ -176,4 +205,5 @@ const Page = () => {
     </div>
   );
 };
+
 export default Page;

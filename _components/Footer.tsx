@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export const Footer = () => {
   return (
-    <div className="fixed bottom-0 flex justify-between w-screen px-8 py-5 bg-white">
+    <div className="fixed bottom-0 flex justify-between w-screen px-8 py-5 bg-white pr-200">
       <Link href="/">
         <House />
       </Link>

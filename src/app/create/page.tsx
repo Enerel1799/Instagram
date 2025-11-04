@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useUser } from "@/providers/AuthProvider";
 import { upload } from "@vercel/blob/client";
+import { useRouter } from "next/navigation";
 import { ChangeEvent, useState } from "react";
 import { toast } from "sonner";
 
@@ -13,6 +14,7 @@ const HuggingFaceImageGenerator = () => {
   const [imageUrl, setImgUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { token, user } = useUser();
+    const { push } = useRouter();
 
   const HF_API_KEY = process.env.HF_API_KEY;
 
@@ -79,6 +81,7 @@ const HuggingFaceImageGenerator = () => {
     });
     if (response.ok) {
       toast("amjilttai");
+      push("/")
     } else {
       toast("try again");
     }

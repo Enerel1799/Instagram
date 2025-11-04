@@ -1,22 +1,20 @@
 "use client";
 
-import { useUser } from "@/providers/AuthProvider";
+import { User, useUser } from "@/providers/AuthProvider";
 import { Heart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Footer } from "../../_components/Footer";
 import { toast } from "sonner";
-import { Header } from "../../_components/Header";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
-type PostType = {
+export type PostType = {
   _id: string;
   caption: string;
   like: string[];
   images: [string];
-  user: {
-    _id: string;
-    username: string;
-  };
+  userId: User;
 };
 
 export default function Home() {
@@ -25,6 +23,7 @@ export default function Home() {
 
   const [posts, setPosts] = useState<PostType[]>([]);
   const myId = user?._id;
+
 
   const fetchPosts = async () => {
     try {
@@ -37,6 +36,7 @@ export default function Home() {
       if (res.ok) {
         const data = await res.json();
         setPosts(data);
+        console.log(data)
       } else {
         toast.error("Алдаа гарлаа");
       }
@@ -62,6 +62,34 @@ export default function Home() {
       toast.error("Like илгээхэд алдаа гарлаа");
     }
   };
+
+  const redirectUserProfile = (userId: string) =>{
+    push(`/user-profile/${userId}`)
+  }
+
+    const redirectComment = (postId: string) =>{
+    push(`/comment/${postId}`)
+  }
+
+  const followUser = async (FollowedUserId: string)=>{
+    const res = await fetch(`http://localhost:8080/follow/${FollowedUserId}`,
+      {
+        method:"POST",
+        headers:{
+          authorization: `Bearer ${token}`,
+          "Content-type":"application/json"
+        }
+      }
+    );
+    if(res.ok){
+      toast.success("success")
+    }else{
+      toast.error("gg")
+    }
+  }
+  const comment = ()=>{
+    push("/comment")
+  }
 
   useEffect(() => {
     if (!token) {
@@ -96,20 +124,36 @@ export default function Home() {
               alignItems: "center",
               padding: "10px",
             }}
+            onClick={()=>redirectUserProfile(post.userId._id)}
           >
-            <div
-              style={{
+            <div  style={{
                 width: "32px",
                 height: "32px",
                 borderRadius: "50%",
                 backgroundColor: "#ccc",
                 marginRight: "10px",
-              }}
-            />
+              }}>            
+              <Avatar>
+              <AvatarImage />
+              <AvatarFallback>
+                {post.userId.username.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar></div>
+
+            <div/>
             <span style={{ fontWeight: "bold", fontSize: "14px" }}>
-              {post._id}
+              {post.userId?.username}
             </span>
           </div>
+            {post.userId.followers.includes(myId!)?(
+            <Button variant={"secondary"} onClick={()=>followUser(post.userId._id)}>
+              Follow
+            </Button>
+            ):(
+            <Button variant={"secondary"} onClick={()=>followUser(post.userId._id)}>
+              Unfollow
+            </Button>
+          )}
 
           {post.images?.[0] && (
             <img
@@ -147,8 +191,9 @@ export default function Home() {
             </div>
             <span style={{ fontWeight: "bold", fontSize: "14px" }}>
               {post.like?.length ?? 0} likes
+              <Button variant={"secondary"} onClick={()=>redirectComment(post._id)}>Comments</Button>
             </span>
-          </div>
+          </div>.   
 
           <div
             style={{
@@ -158,7 +203,7 @@ export default function Home() {
             }}
           >
             <span style={{ fontWeight: "bold", marginRight: "5px" }}>
-              {post._id}
+              {post.userId.username}
             </span>
             {post.caption}
           </div>

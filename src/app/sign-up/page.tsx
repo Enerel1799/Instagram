@@ -15,7 +15,7 @@ type InputValue = {
 };
 
 const Page = () => {
-  const { setUser, token } = useUser();
+  const { setUser, token ,user} = useUser();
   const { push } = useRouter();
 
   const [inputValues, setInputValues] = useState<InputValue>({
@@ -51,7 +51,13 @@ const Page = () => {
     } else {
       toast.error("Something went wrong. Please try again.");
     }
+
   };
+  useEffect(()=>{
+    if(user||token){
+      push("/")
+    }
+  })
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
