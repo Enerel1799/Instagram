@@ -26,7 +26,7 @@ const Page = () => {
 
   const fetchComments = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/comment/get/${postId}`, {
+      const response = await fetch(`https://ig-backend-a8gz.onrender.com/comment/get/${postId}`, {
         method: "GET",
         headers: {         
           Authorization: `Bearer ${token}`,

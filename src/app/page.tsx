@@ -27,7 +27,7 @@ export default function Home() {
 
   const fetchPosts = async () => {
     try {
-      const res = await fetch("http://localhost:8080/posts", {
+      const res = await fetch("https://ig-backend-a8gz.onrender.com/posts", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -36,7 +36,6 @@ export default function Home() {
       if (res.ok) {
         const data = await res.json();
         setPosts(data);
-        console.log(data)
       } else {
         toast.error("Алдаа гарлаа");
       }
@@ -47,7 +46,7 @@ export default function Home() {
 
   const postLike = async (postId: string) => {
     try {
-      const res = await fetch(`http://localhost:8080/posts/like/${postId}`, {
+      const res = await fetch(`https://ig-backend-a8gz.onrender.com/posts/like/${postId}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -72,7 +71,7 @@ export default function Home() {
   }
 
   const followUser = async (FollowedUserId: string)=>{
-    const res = await fetch(`http://localhost:8080/follow/${FollowedUserId}`,
+    const res = await fetch(`https://ig-backend-a8gz.onrender.com/follow/${FollowedUserId}`,
       {
         method:"POST",
         headers:{

@@ -14,49 +14,30 @@ const HuggingFaceImageGenerator = () => {
   const [imageUrl, setImgUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { token, user } = useUser();
-    const { push } = useRouter();
+  const { push } = useRouter();
 
   const HF_API_KEY = process.env.HF_API_KEY;
 
   const generateImage = async () => {
     if (!prompt.trim()) return;
-
     setIsLoading(true);
-    setImgUrl("");
-
     try {
-      const headers = {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${HF_API_KEY}`,
-      };
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        body: JSON.stringify({ prompt }),
+      });
 
-      const response = await fetch(
-        `https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0`,
-        {
-          method: "POST",
-          headers: headers,
-          body: JSON.stringify({
-            inputs: prompt,
-            parameters: {
-              negative_prompt: "blurry,bad quality,disorted",
-              num_inference_steps: 20,
-              guidance_scale: 7.5,
-            },
-          }),
-        }
-      );
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error("Failed to generate");
 
       const blob = await response.blob();
 
       const file = new File([blob], "generated.png", { type: "image/png" });
+
       const uploaded = await upload(file.name, file, {
         access: "public",
         handleUploadUrl: "/api/upload",
       });
-      console.log(uploaded);
+
       setImgUrl(uploaded.url);
     } catch (err) {
       setIsLoading(false);
@@ -67,21 +48,24 @@ const HuggingFaceImageGenerator = () => {
     setInputValue(event?.target.value);
   };
   const createPost = async () => {
-    const response = await fetch("http://localhost:8080/posts/create", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        userId: user?._id,
-        caption: inputValue,
-        images: [imageUrl],
-      }),
-    });
+    const response = await fetch(
+      "https://ig-backend-a8gz.onrender.com/posts/create",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userId: user?._id,
+          caption: inputValue,
+          images: [imageUrl],
+        }),
+      }
+    );
     if (response.ok) {
       toast("amjilttai");
-      push("/")
+      push("/");
     } else {
       toast("try again");
     }

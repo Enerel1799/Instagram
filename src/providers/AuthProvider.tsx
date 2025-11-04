@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const response = await fetch("http://localhost:8080/login", {
+    const response = await fetch("https://ig-backend-a8gz.onrender.com/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -16,7 +16,7 @@ const Page = () => {
   
     const userId = user?._id;
     const fetchUserData= async()=>{
-      const response = await fetch(`http://localhost:8080/user-info/${userId}`,{
+      const response = await fetch(`https://ig-backend-a8gz.onrender.com/user-info/${userId}`,{
         headers:{
           authorization : `Bearer ${token}`,
           "Content-Type": "application/json"
@@ -28,7 +28,7 @@ const Page = () => {
     }
 
   const fetchPosts = async () => {
-      const res = await fetch(`http://localhost:8080/posts/user-posts/${userId}`, {
+      const res = await fetch(`https://ig-backend-a8gz.onrender.com/posts/user-posts/${userId}`, {
         headers: { authorization: `Bearer ${token}` ,
         "Content-Type": "application/json"
       },

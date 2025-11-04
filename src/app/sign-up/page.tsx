@@ -33,7 +33,7 @@ const Page = () => {
   };
 
   const signup = async () => {
-    const response = await fetch("http://localhost:8080/sign-up", {
+    const response = await fetch("https://ig-backend-a8gz.onrender.com/sign-up", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

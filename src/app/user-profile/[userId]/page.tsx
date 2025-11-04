@@ -14,7 +14,7 @@ const Page = () => {
   const [posts, setPosts] = useState<PostType[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://ig-backend-a8gz.onrender.com";
 
   const fetchUserData = async () => {
     try {
@@ -45,7 +45,7 @@ const Page = () => {
   };
    
   const followUser = async ()=>{
-    const res = await fetch(`http://localhost:8080/follow/${userInfo?._id}`,
+    const res = await fetch(`https://ig-backend-a8gz.onrender.com/follow/${userInfo?._id}`,
       {
         method:"POST",
         headers:{
